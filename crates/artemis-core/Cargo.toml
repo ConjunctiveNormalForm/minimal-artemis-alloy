@@ -7,11 +7,10 @@ edition = "2021"
 
 [dependencies]
 
-## eth
-ethers.workspace = true
+## alloy
+alloy.workspace = true
 opensea-stream = { git = "https://github.com/FrankieIsLost/opensea-stream-rs"}
 mev-share = "0.1.4"
-ethers-flashbots = { git = "https://github.com/FrankieIsLost/ethers-flashbots", features = ["rustls"] }
 
 ## async
 async-trait = "0.1.64"

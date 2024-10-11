@@ -21,7 +21,7 @@ artemis-core = { git = "https://github.com/paradigmxyz/artemis.git" }
 chainbound-artemis = { git = "https://github.com/paradigmxyz/artemis.git" }
 
 # the following dependencies are also used in this example
-ethers = {  version = "2", features = ["ws", "rustls"] }
+alloy = { version = "0.4.1", features = ["ws", "rustls"] }
 tokio = { version = "1.18", features = ["full"] }
 anyhow = "1.0.70"
 ```
