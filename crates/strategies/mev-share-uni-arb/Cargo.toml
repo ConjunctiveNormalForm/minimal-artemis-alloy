@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-alloy = { version = "0.4.1", features = ["std"]}
+alloy = { version = "0.4.2", features = ["std"]}
 tokio = { version = "1.18", features = ["full"] }
 mev-share = "0.1.4"
 async-trait = "0.1.64"

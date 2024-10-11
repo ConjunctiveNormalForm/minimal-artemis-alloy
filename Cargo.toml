@@ -8,12 +8,13 @@ members = [
     "crates/clients/*", 
     "examples/*",
 ]
+resolver = "2"
 
 default-members = ["bin/artemis", "bin/cli"]
 
 [workspace.dependencies]
 ##alloy
-alloy = { version = "0.4.1", features = ["full"] }
+alloy = { version = "0.4.2", features = ["full"] }
 
 
 [profile.release]
@@ -21,4 +22,3 @@ panic = 'abort'
 
 [profile.dev]
 panic = 'abort'
-

@@ -6,4 +6,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-alloy = { version = "0.4.1", defaul-features = false }
+alloy = { version = "0.4.2", defaul-features = false }

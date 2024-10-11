@@ -20,10 +20,6 @@ At its core, Artemis is architected as an event processing pipeline. The library
 
 ## Strategies 
 
-The following strategies have been implemented: 
-
-- [Opensea/Sudoswap NFT Arbitrage](/crates/strategies/opensea-sudo-arb/): A strategy implementing atomic, cross-market NFT arbitrage between Seaport and Sudoswap.
-
 ## Build, Test and Run
 
 First, make sure the following are installed: 
