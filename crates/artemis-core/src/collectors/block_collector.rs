@@ -1,48 +1,54 @@
 use crate::types::{Collector, CollectorStream};
+use alloy::{network::AnyNetwork, primitives::{BlockHash, BlockNumber}, providers::{Provider, ProviderBuilder, WsConnect}, pubsub::PubSubFrontend, transports::BoxTransport};
 use anyhow::Result;
 use async_trait::async_trait;
-use ethers::{
-    prelude::Middleware,
-    providers::PubsubClient,
-    types::{H256, U64},
-};
 use std::sync::Arc;
 use tokio_stream::StreamExt;
 
 /// A collector that listens for new blocks, and generates a stream of
 /// [events](NewBlock) which contain the block number and hash.
-pub struct BlockCollector<M> {
-    provider: Arc<M>,
+pub struct BlockCollector<P> {
+    provider: Arc<P>,
 }
 
 /// A new block event, containing the block number and hash.
 #[derive(Debug, Clone)]
 pub struct NewBlock {
-    pub hash: H256,
-    pub number: U64,
+    pub hash: BlockHash,
+    pub number: BlockNumber,
 }
 
-impl<M> BlockCollector<M> {
-    pub fn new(provider: Arc<M>) -> Self {
+impl<P> BlockCollector<P> {
+    pub fn new(provider: Arc<P>) -> Self {
         Self { provider }
+    }
+    
+    async fn trytry(&self) {
+        // Create a provider.
+        let ws = WsConnect::new("foo");
+        let provider = ProviderBuilder::new().on_ws(ws).await?;
+    
+        // Subscribe to blocks.
+        let subscription = provider.subscribe_blocks().await?;
     }
 }
 
 /// Implementation of the [Collector](Collector) trait for the [BlockCollector](BlockCollector).
-/// This implementation uses the [PubsubClient](PubsubClient) to subscribe to new blocks.
+/// To be able to use subscribe* methods, Provider needs to use BoxTransport over PubSubFrontend as transport.
+/// See [issue #296](https://github.com/alloy-rs/alloy/issues/296). 
 #[async_trait]
-impl<M> Collector<NewBlock> for BlockCollector<M>
+impl<P> Collector<NewBlock> for BlockCollector<P>
 where
-    M: Middleware,
-    M::Provider: PubsubClient,
-    M::Error: 'static,
+    P: Provider<PubSubFrontend, AnyNetwork>,
 {
     async fn get_event_stream(&self) -> Result<CollectorStream<'_, NewBlock>> {
-        let stream = self.provider.subscribe_blocks().await?;
-        let stream = stream.filter_map(|block| match block.hash {
+        
+        let subscription = self.provider.subscribe_blocks().await?;
+        let stream = subscription.into_stream().filter_map(|block| match block.hash {
             Some(hash) => block.number.map(|number| NewBlock { hash, number }),
             None => None,
         });
         Ok(Box::pin(stream))
     }
+    
 }

@@ -1,6 +1,9 @@
+use alloy::providers::Provider;
+use alloy::providers::ProviderBuilder;
+use alloy::providers::WsConnect;
 use anyhow::Result;
+use alloy::{}
 use async_trait::async_trait;
-use ethers::types::Transaction;
 use std::pin::Pin;
 use tokio_stream::Stream;
 use tokio_stream::StreamExt;
@@ -86,6 +89,12 @@ where
     F: Fn(A1) -> Option<A2> + Send + Sync + Clone + 'static,
 {
     async fn execute(&self, action: A1) -> Result<()> {
+        let rpc_url = "wss://eth-mainnet.g.alchemy.com/v2/your-api-key";
+        let ws = WsConnect::new(rpc_url);
+        let provider = ProviderBuilder::new().on_ws(ws).await?;
+        let sub = provider.subscribe_pending_transactions().await?;
+
+
         let action = (self.f)(action);
         match action {
             Some(action) => self.executor.execute(action).await,

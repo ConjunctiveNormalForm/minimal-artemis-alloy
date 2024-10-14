@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use ethers::{prelude::Middleware, providers::PubsubClient, types::Transaction};
+use alloy::{providers::}
 use futures::StreamExt;
 use std::sync::Arc;
 
