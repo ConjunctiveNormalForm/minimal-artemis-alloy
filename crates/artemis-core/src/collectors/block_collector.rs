@@ -1,5 +1,5 @@
 use crate::types::{Collector, CollectorStream};
-use alloy::{network::AnyNetwork, primitives::{BlockHash, BlockNumber}, providers::{Provider, ProviderBuilder, WsConnect}, pubsub::PubSubFrontend, transports::BoxTransport};
+use alloy::{network::AnyNetwork, primitives::{BlockHash, BlockNumber}, providers::Provider, pubsub::PubSubFrontend};
 use anyhow::Result;
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -22,15 +22,6 @@ impl<P> BlockCollector<P> {
     pub fn new(provider: Arc<P>) -> Self {
         Self { provider }
     }
-    
-    async fn trytry(&self) {
-        // Create a provider.
-        let ws = WsConnect::new("foo");
-        let provider = ProviderBuilder::new().on_ws(ws).await?;
-    
-        // Subscribe to blocks.
-        let subscription = provider.subscribe_blocks().await?;
-    }
 }
 
 /// Implementation of the [Collector](Collector) trait for the [BlockCollector](BlockCollector).
@@ -44,10 +35,9 @@ where
     async fn get_event_stream(&self) -> Result<CollectorStream<'_, NewBlock>> {
         
         let subscription = self.provider.subscribe_blocks().await?;
-        let stream = subscription.into_stream().filter_map(|block| match block.hash {
-            Some(hash) => block.number.map(|number| NewBlock { hash, number }),
-            None => None,
-        });
+        let stream = subscription.into_stream().map(|header| 
+            NewBlock { hash: header.hash, number: header.inner.number }
+        );
         Ok(Box::pin(stream))
     }
     

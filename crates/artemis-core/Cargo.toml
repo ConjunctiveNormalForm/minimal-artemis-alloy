@@ -9,12 +9,10 @@ edition = "2021"
 
 ## alloy
 alloy.workspace = true
-opensea-stream = { git = "https://github.com/FrankieIsLost/opensea-stream-rs"}
-mev-share = "0.1.4"
 
 ## async
-async-trait = "0.1.64"
-futures = "0.3"
+async-trait = "0.1.86"
+futures = "0.3.31"
 reqwest = { version = "0.11.14", default-features = false, features = ["rustls-tls"] }
 tokio = { version = "1.18", features = ["full"] }
 tokio-stream = { version = "0.1", features = ['sync'] }
