@@ -1,25 +1,16 @@
 [workspace]
 members = [
-    "bin/artemis",
-    "bin/cli",
     "crates/artemis-core",
-    "crates/generator",
-    "crates/strategies/*",
-    "crates/clients/*", 
-    "examples/*",
 ]
-
-default-members = ["bin/artemis", "bin/cli"]
+resolver = "2"
 
 [workspace.dependencies]
-## eth
-ethers = { version = "2", features = ["ws", "rustls"]}
-ethers-signers = "2.0"
-
+##alloy
+alloy = { version = "0.9.2", features = ["full"] }
+alloy-node-bindings = { version = "0.9.2" }
 
 [profile.release]
 panic = 'abort'
 
 [profile.dev]
 panic = 'abort'
-

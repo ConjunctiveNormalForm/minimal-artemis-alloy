@@ -4,7 +4,6 @@
     no_crate_inject,
     attr(deny(warnings, rust_2018_idioms), allow(dead_code, unused_variables))
 ))]
-
 //! A library for writing MEV bots, designed to be simple, modular, and fast.
 //!
 //! At its core, Artemis is architected as an event processing pipeline. The
@@ -35,5 +34,3 @@ pub mod engine;
 pub mod executors;
 /// This module contains the core type definitions for Artemis.
 pub mod types;
-/// This module contains utilities for working with Artemis.
-pub mod utilities;
