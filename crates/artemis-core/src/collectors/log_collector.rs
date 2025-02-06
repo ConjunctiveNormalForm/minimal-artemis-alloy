@@ -1,5 +1,10 @@
 use crate::types::{Collector, CollectorStream};
-use alloy::{network::AnyNetwork, providers::Provider, pubsub::PubSubFrontend, rpc::types::{Filter, Log}};
+use alloy::{
+    network::AnyNetwork,
+    providers::Provider,
+    pubsub::PubSubFrontend,
+    rpc::types::{Filter, Log},
+};
 use anyhow::Result;
 use async_trait::async_trait;
 //use ethers::{

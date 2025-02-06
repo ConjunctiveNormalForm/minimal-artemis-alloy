@@ -1,20 +1,19 @@
 use std::{
-    ops::{Div, Mul},
-    sync::Arc,
+    marker::PhantomData, ops::{Div, Mul}, sync::Arc
 };
 
 use crate::types::Executor;
+use alloy::{
+    network::{AnyNetwork, TransactionBuilder}, primitives::U128, providers::Provider,
+    rpc::types::{serde_helpers::WithOtherFields, TransactionRequest}, transports::Transport,
+};
 use anyhow::{Context, Result};
 use async_trait::async_trait;
-use alloy::{
-    network::TransactionBuilder,
-    primitives::U128,
-    providers::Provider, rpc::types::TransactionRequest
-};
 
 /// An executor that sends transactions to the mempool.
-pub struct MempoolExecutor<P> {
+pub struct MempoolExecutor<P, T> {
     client: Arc<P>,
+    _transport: PhantomData<T>,
 }
 
 /// Information about the gas bid for a transaction.
@@ -29,21 +28,25 @@ pub struct GasBidInfo {
 
 #[derive(Debug, Clone)]
 pub struct SubmitTxToMempool {
-    pub tx: TransactionRequest,
+    pub tx: WithOtherFields<TransactionRequest>,
     pub gas_bid_info: Option<GasBidInfo>,
 }
 
-impl<P: Provider> MempoolExecutor<P> {
+impl<P, T > MempoolExecutor<P, T> 
+where
+    P: Provider<T, AnyNetwork>,
+    T: Transport + Clone,
+{
     pub fn new(client: Arc<P>) -> Self {
-        Self { client }
+        Self { client, _transport: PhantomData }
     }
 }
 
 #[async_trait]
-impl<P> Executor<SubmitTxToMempool> for MempoolExecutor<P>
+impl<P, T> Executor<SubmitTxToMempool> for MempoolExecutor<P, T>
 where
-    P: Provider,
-//    P::Error: 'static,
+    P: Provider<T, AnyNetwork>,
+    T: Transport + Clone,
 {
     /// Send a transaction to the mempool.
     async fn execute(&self, mut action: SubmitTxToMempool) -> Result<()> {
@@ -62,11 +65,12 @@ where
                 .mul(U128::from(gas_bid_info.bid_percentage))
                 .div(U128::from(100));
         } else {
-            bid_gas_price = U128::from(self
-                .client
-                .get_gas_price()
-                .await
-                .context("Error getting gas price: {}")?);
+            bid_gas_price = U128::from(
+                self.client
+                    .get_gas_price()
+                    .await
+                    .context("Error getting gas price: {}")?,
+            );
         }
         action.tx.set_gas_price(bid_gas_price.to());
         let _ = self.client.send_transaction(action.tx).await?;

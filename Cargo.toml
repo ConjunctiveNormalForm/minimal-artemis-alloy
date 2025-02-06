@@ -7,7 +7,7 @@ resolver = "2"
 [workspace.dependencies]
 ##alloy
 alloy = { version = "0.9.2", features = ["full"] }
-
+alloy-node-bindings = { version = "0.9.2" }
 
 [profile.release]
 panic = 'abort'

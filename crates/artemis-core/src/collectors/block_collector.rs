@@ -1,9 +1,14 @@
 use crate::types::{Collector, CollectorStream};
-use alloy::{network::AnyNetwork, primitives::{BlockHash, BlockNumber}, providers::Provider, pubsub::PubSubFrontend};
+use alloy::{
+    network::AnyNetwork,
+    primitives::{BlockHash, BlockNumber},
+    providers::Provider,
+    pubsub::PubSubFrontend,
+};
 use anyhow::Result;
 use async_trait::async_trait;
 use std::sync::Arc;
-use tokio_stream::StreamExt;
+use futures::StreamExt;
 
 /// A collector that listens for new blocks, and generates a stream of
 /// [events](NewBlock) which contain the block number and hash.
@@ -26,19 +31,19 @@ impl<P> BlockCollector<P> {
 
 /// Implementation of the [Collector](Collector) trait for the [BlockCollector](BlockCollector).
 /// To be able to use subscribe* methods, Provider needs to use BoxTransport over PubSubFrontend as transport.
-/// See [issue #296](https://github.com/alloy-rs/alloy/issues/296). 
+/// See [issue #296](https://github.com/alloy-rs/alloy/issues/296).
 #[async_trait]
 impl<P> Collector<NewBlock> for BlockCollector<P>
 where
-    P: Provider<PubSubFrontend, AnyNetwork>,
+    //    P: Provider<BoxTransport<PubSubFrontend>, AnyNetwork>,
+    P: Provider<PubSubFrontend, AnyNetwork> + Send + Sync,
 {
     async fn get_event_stream(&self) -> Result<CollectorStream<'_, NewBlock>> {
-        
         let subscription = self.provider.subscribe_blocks().await?;
-        let stream = subscription.into_stream().map(|header| 
-            NewBlock { hash: header.hash, number: header.inner.number }
-        );
+        let stream = subscription.into_stream().map(|header| NewBlock {
+            hash: header.hash,
+            number: header.inner.number,
+        });
         Ok(Box::pin(stream))
     }
-    
 }

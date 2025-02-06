@@ -4,7 +4,6 @@
     no_crate_inject,
     attr(deny(warnings, rust_2018_idioms), allow(dead_code, unused_variables))
 ))]
-
 //! A library for writing MEV bots, designed to be simple, modular, and fast.
 //!
 //! At its core, Artemis is architected as an event processing pipeline. The
