@@ -3,12 +3,11 @@ use alloy::{
     network::AnyNetwork,
     primitives::{BlockHash, BlockNumber},
     providers::Provider,
-    pubsub::PubSubFrontend,
 };
 use anyhow::Result;
 use async_trait::async_trait;
-use std::sync::Arc;
 use futures::StreamExt;
+use std::sync::Arc;
 
 /// A collector that listens for new blocks, and generates a stream of
 /// [events](NewBlock) which contain the block number and hash.
@@ -36,7 +35,7 @@ impl<P> BlockCollector<P> {
 impl<P> Collector<NewBlock> for BlockCollector<P>
 where
     //    P: Provider<BoxTransport<PubSubFrontend>, AnyNetwork>,
-    P: Provider<PubSubFrontend, AnyNetwork> + Send + Sync,
+    P: Provider<AnyNetwork> + Send + Sync,
 {
     async fn get_event_stream(&self) -> Result<CollectorStream<'_, NewBlock>> {
         let subscription = self.provider.subscribe_blocks().await?;

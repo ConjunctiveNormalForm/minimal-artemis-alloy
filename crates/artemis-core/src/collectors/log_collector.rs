@@ -2,7 +2,6 @@ use crate::types::{Collector, CollectorStream};
 use alloy::{
     network::AnyNetwork,
     providers::Provider,
-    pubsub::PubSubFrontend,
     rpc::types::{Filter, Log},
 };
 use anyhow::Result;
@@ -33,7 +32,7 @@ impl<P> LogCollector<P> {
 #[async_trait]
 impl<P> Collector<Log> for LogCollector<P>
 where
-    P: Provider<PubSubFrontend, AnyNetwork>,
+    P: Provider<AnyNetwork>,
 {
     async fn get_event_stream(&self) -> Result<CollectorStream<'_, Log>> {
         let sub = self.provider.subscribe_logs(&self.filter).await?;

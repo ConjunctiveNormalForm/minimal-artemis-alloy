@@ -34,3 +34,5 @@ pub mod engine;
 pub mod executors;
 /// This module contains the core type definitions for Artemis.
 pub mod types;
+/// This module contains the wrapper for the provider.
+pub mod wrapper;
