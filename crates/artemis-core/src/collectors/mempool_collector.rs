@@ -3,7 +3,6 @@ use async_trait::async_trait;
 use alloy::{
     network::{AnyNetwork, AnyTxEnvelope},
     providers::Provider,
-    pubsub::PubSubFrontend,
     rpc::types::{serde_helpers::WithOtherFields, Transaction},
 };
 use std::sync::Arc;
@@ -30,9 +29,11 @@ impl<P> MempoolCollector<P> {
 #[async_trait]
 impl<P> Collector<WithOtherFields<Transaction<AnyTxEnvelope>>> for MempoolCollector<P>
 where
-    P: Provider<PubSubFrontend, AnyNetwork>,
+    P: Provider<AnyNetwork>,
 {
-    async fn get_event_stream(&self) -> Result<CollectorStream<'_, WithOtherFields<Transaction<AnyTxEnvelope>>>> {
+    async fn get_event_stream(
+        &self,
+    ) -> Result<CollectorStream<'_, WithOtherFields<Transaction<AnyTxEnvelope>>>> {
         let sub = match self.provider.subscribe_pending_transactions().await {
             Ok(sub) => sub,
             Err(e) => {
@@ -43,17 +44,19 @@ where
                 ));
             }
         };
-        let stream = sub.into_stream().then(move |hash| async move {
-            match self.provider.get_transaction_by_hash(hash).await {
-                Ok(Some(tx)) => Some(tx),
-                Ok(None) => None,
-                Err(e) => {
-                    error!("Error getting transaction by hash: {:?}", e);
-                    None
+        let stream = sub
+            .into_stream()
+            .then(move |hash| async move {
+                match self.provider.get_transaction_by_hash(hash).await {
+                    Ok(Some(tx)) => Some(tx),
+                    Ok(None) => None,
+                    Err(e) => {
+                        error!("Error getting transaction by hash: {:?}", e);
+                        None
+                    }
                 }
-            }
-        })
-        .filter_map(|res| res);
+            })
+            .filter_map(|res| res);
 
         Ok(Box::pin(stream))
     }

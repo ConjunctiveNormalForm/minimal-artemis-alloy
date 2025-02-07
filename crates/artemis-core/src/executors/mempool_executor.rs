@@ -1,19 +1,21 @@
 use std::{
-    marker::PhantomData, ops::{Div, Mul}, sync::Arc
+    ops::{Div, Mul},
+    sync::Arc,
 };
 
 use crate::types::Executor;
 use alloy::{
-    network::{AnyNetwork, TransactionBuilder}, primitives::U128, providers::Provider,
-    rpc::types::{serde_helpers::WithOtherFields, TransactionRequest}, transports::Transport,
+    network::{AnyNetwork, TransactionBuilder},
+    primitives::U128,
+    providers::Provider,
+    rpc::types::{serde_helpers::WithOtherFields, TransactionRequest},
 };
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 
 /// An executor that sends transactions to the mempool.
-pub struct MempoolExecutor<P, T> {
+pub struct MempoolExecutor<P> {
     client: Arc<P>,
-    _transport: PhantomData<T>,
 }
 
 /// Information about the gas bid for a transaction.
@@ -32,21 +34,21 @@ pub struct SubmitTxToMempool {
     pub gas_bid_info: Option<GasBidInfo>,
 }
 
-impl<P, T > MempoolExecutor<P, T> 
+impl<P> MempoolExecutor<P>
 where
-    P: Provider<T, AnyNetwork>,
-    T: Transport + Clone,
+    P: Provider<AnyNetwork>,
 {
     pub fn new(client: Arc<P>) -> Self {
-        Self { client, _transport: PhantomData }
+        Self {
+            client,
+        }
     }
 }
 
 #[async_trait]
-impl<P, T> Executor<SubmitTxToMempool> for MempoolExecutor<P, T>
+impl<P> Executor<SubmitTxToMempool> for MempoolExecutor<P>
 where
-    P: Provider<T, AnyNetwork>,
-    T: Transport + Clone,
+    P: Provider<AnyNetwork>
 {
     /// Send a transaction to the mempool.
     async fn execute(&self, mut action: SubmitTxToMempool) -> Result<()> {
