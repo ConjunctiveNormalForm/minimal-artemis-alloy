@@ -39,16 +39,14 @@ where
     P: Provider<AnyNetwork>,
 {
     pub fn new(client: Arc<P>) -> Self {
-        Self {
-            client,
-        }
+        Self { client }
     }
 }
 
 #[async_trait]
 impl<P> Executor<SubmitTxToMempool> for MempoolExecutor<P>
 where
-    P: Provider<AnyNetwork>
+    P: Provider<AnyNetwork>,
 {
     /// Send a transaction to the mempool.
     async fn execute(&self, mut action: SubmitTxToMempool) -> Result<()> {

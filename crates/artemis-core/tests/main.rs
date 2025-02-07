@@ -10,7 +10,8 @@ use alloy_node_bindings::{Anvil, AnvilInstance};
 use artemis_core::{
     collectors::{block_collector::BlockCollector, mempool_collector::MempoolCollector},
     executors::mempool_executor::{MempoolExecutor, SubmitTxToMempool},
-    types::{Collector, Executor}, wrapper::WrappedProvider,
+    types::{Collector, Executor},
+    wrapper::WrappedProvider,
 };
 
 use futures::StreamExt;

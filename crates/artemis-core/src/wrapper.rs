@@ -1,20 +1,27 @@
 /// code from https://github.com/alloy-rs/alloy/pull/2008
 use alloy::{
-    consensus::Account, network::{primitives::BlockTransactionsKind, Network}, primitives::{
+    consensus::Account,
+    network::{primitives::BlockTransactionsKind, Network},
+    primitives::{
         Address, BlockHash, BlockNumber, Bytes, StorageKey, StorageValue, TxHash, B256, U128, U256,
         U64,
-    }, providers::{
-        utils::{Eip1559Estimation, EstimatorFunction}, EthCall, EthCallMany, FilterPollerBuilder, PendingTransaction, PendingTransactionBuilder, PendingTransactionConfig, PendingTransactionError, Provider, ProviderCall, RootProvider, RpcWithBlock, SendableTx
-    }, rpc::{
+    },
+    providers::{
+        utils::{Eip1559Estimation, EstimatorFunction},
+        EthCall, EthCallMany, FilterPollerBuilder, PendingTransaction, PendingTransactionBuilder,
+        PendingTransactionConfig, PendingTransactionError, Provider, ProviderCall, RootProvider,
+        RpcWithBlock, SendableTx,
+    },
+    pubsub::Subscription,
+    rpc::{
         client::{ClientRef, NoParams, WeakClient},
         types::eth::{
             simulate::{SimulatePayload, SimulatedBlock},
             AccessListResult, BlockId, BlockNumberOrTag, Bundle, EIP1186AccountProofResponse,
             EthCallResponse, FeeHistory, Filter, FilterChanges, Index, Log, SyncStatus,
         },
-    }, transports::TransportResult,
-    pubsub::Subscription,
-
+    },
+    transports::TransportResult,
 };
 use serde_json::value::RawValue;
 
@@ -344,15 +351,11 @@ impl<N: Network> Provider<N> for WrappedProvider<N> {
         self.0.send_transaction_internal(tx).await
     }
 
-    async fn subscribe_blocks(
-        &self,
-    ) -> TransportResult<Subscription<N::HeaderResponse>> {
+    async fn subscribe_blocks(&self) -> TransportResult<Subscription<N::HeaderResponse>> {
         self.0.subscribe_blocks().await
     }
 
-    async fn subscribe_pending_transactions(
-        &self,
-    ) -> TransportResult<Subscription<B256>> {
+    async fn subscribe_pending_transactions(&self) -> TransportResult<Subscription<B256>> {
         self.0.subscribe_pending_transactions().await
     }
 
@@ -362,10 +365,7 @@ impl<N: Network> Provider<N> for WrappedProvider<N> {
         self.0.subscribe_full_pending_transactions().await
     }
 
-    async fn subscribe_logs(
-        &self,
-        filter: &Filter,
-    ) -> TransportResult<Subscription<Log>> {
+    async fn subscribe_logs(&self, filter: &Filter) -> TransportResult<Subscription<Log>> {
         self.0.subscribe_logs(filter).await
     }
 
