@@ -7,15 +7,15 @@ use crate::types::Executor;
 use alloy::{
     network::{AnyNetwork, TransactionBuilder},
     primitives::U128,
-    providers::Provider,
+    providers::{DynProvider, Provider},
     rpc::types::{serde_helpers::WithOtherFields, TransactionRequest},
 };
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 
 /// An executor that sends transactions to the mempool.
-pub struct MempoolExecutor<P> {
-    client: Arc<P>,
+pub struct MempoolExecutor {
+    client: Arc<DynProvider<AnyNetwork>>,
 }
 
 /// Information about the gas bid for a transaction.
@@ -34,20 +34,14 @@ pub struct SubmitTxToMempool {
     pub gas_bid_info: Option<GasBidInfo>,
 }
 
-impl<P> MempoolExecutor<P>
-where
-    P: Provider<AnyNetwork>,
-{
-    pub fn new(client: Arc<P>) -> Self {
+impl MempoolExecutor {
+    pub fn new(client: Arc<DynProvider<AnyNetwork>>) -> Self {
         Self { client }
     }
 }
 
 #[async_trait]
-impl<P> Executor<SubmitTxToMempool> for MempoolExecutor<P>
-where
-    P: Provider<AnyNetwork>,
-{
+impl Executor<SubmitTxToMempool> for MempoolExecutor {
     /// Send a transaction to the mempool.
     async fn execute(&self, mut action: SubmitTxToMempool) -> Result<()> {
         let gas_usage = self

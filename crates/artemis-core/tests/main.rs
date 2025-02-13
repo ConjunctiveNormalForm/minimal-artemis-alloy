@@ -3,7 +3,7 @@ use alloy::{
     eips::{BlockId, BlockNumberOrTag},
     network::{AnyNetwork, TransactionBuilder},
     primitives::U256,
-    providers::{Provider, ProviderBuilder, WsConnect},
+    providers::{DynProvider, Provider, ProviderBuilder, WsConnect},
     rpc::types::{serde_helpers::WithOtherFields, BlockTransactionsKind, TransactionRequest},
 };
 use alloy_node_bindings::{Anvil, AnvilInstance};
@@ -11,14 +11,13 @@ use artemis_core::{
     collectors::{block_collector::BlockCollector, mempool_collector::MempoolCollector},
     executors::mempool_executor::{MempoolExecutor, SubmitTxToMempool},
     types::{Collector, Executor},
-    wrapper::WrappedProvider,
 };
 
 use futures::StreamExt;
 use std::{sync::Arc, time::Duration};
 
 /// Spawns Anvil and instantiates an Http provider.
-pub async fn spawn_anvil() -> (WrappedProvider<AnyNetwork>, AnvilInstance) {
+pub async fn spawn_anvil() -> (DynProvider<AnyNetwork>, AnvilInstance) {
     let anvil = Anvil::new().block_time(1u64).spawn();
     let ws = WsConnect::new(anvil.ws_endpoint_url());
     let p = ProviderBuilder::new()
@@ -26,7 +25,7 @@ pub async fn spawn_anvil() -> (WrappedProvider<AnyNetwork>, AnvilInstance) {
         .on_ws(ws)
         .await
         .unwrap();
-    let provider = WrappedProvider::new(p);
+    let provider = DynProvider::new(p);
     (provider, anvil)
 }
 

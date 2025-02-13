@@ -2,7 +2,7 @@ use async_trait::async_trait;
 
 use alloy::{
     network::{AnyNetwork, AnyTxEnvelope},
-    providers::Provider,
+    providers::{DynProvider, Provider},
     rpc::types::{serde_helpers::WithOtherFields, Transaction},
 };
 use std::sync::Arc;
@@ -14,12 +14,12 @@ use tokio_stream::StreamExt;
 
 /// A collector that listens for new transactions in the mempool, and generates a stream of
 /// [events](Transaction) which contain the transaction.
-pub struct MempoolCollector<P> {
-    provider: Arc<P>,
+pub struct MempoolCollector {
+    provider: Arc<DynProvider<AnyNetwork>>,
 }
 
-impl<P> MempoolCollector<P> {
-    pub fn new(provider: Arc<P>) -> Self {
+impl MempoolCollector {
+    pub fn new(provider: Arc<DynProvider<AnyNetwork>>) -> Self {
         Self { provider }
     }
 }
@@ -27,10 +27,7 @@ impl<P> MempoolCollector<P> {
 /// Implementation of the [Collector](Collector) trait for the [MempoolCollector](MempoolCollector).
 /// This implementation uses the [PubsubClient](PubsubClient) to subscribe to new transactions.
 #[async_trait]
-impl<P> Collector<WithOtherFields<Transaction<AnyTxEnvelope>>> for MempoolCollector<P>
-where
-    P: Provider<AnyNetwork>,
-{
+impl Collector<WithOtherFields<Transaction<AnyTxEnvelope>>> for MempoolCollector {
     async fn get_event_stream(
         &self,
     ) -> Result<CollectorStream<'_, WithOtherFields<Transaction<AnyTxEnvelope>>>> {
