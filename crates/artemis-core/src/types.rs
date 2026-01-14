@@ -1,4 +1,4 @@
-use alloy::rpc::types::Transaction;
+use alloy::network::AnyRpcTransaction;
 use anyhow::Result;
 use async_trait::async_trait;
 use std::pin::Pin;
@@ -95,7 +95,7 @@ where
 /// Convenience enum containing all the events that can be emitted by collectors.
 pub enum Events {
     NewBlock(NewBlock),
-    Transaction(Transaction),
+    Transaction(AnyRpcTransaction),
 }
 
 /// Convenience enum containing all the actions that can be executed by executors.

@@ -4,7 +4,7 @@ use alloy::{
     network::{AnyNetwork, TransactionBuilder},
     primitives::U256,
     providers::{DynProvider, Provider, ProviderBuilder, WsConnect},
-    rpc::types::{serde_helpers::WithOtherFields, BlockTransactionsKind, TransactionRequest},
+    rpc::types::{serde_helpers::WithOtherFields, TransactionRequest},
 };
 use alloy_node_bindings::{Anvil, AnvilInstance};
 use artemis_core::{
@@ -22,7 +22,7 @@ pub async fn spawn_anvil() -> (DynProvider<AnyNetwork>, AnvilInstance) {
     let ws = WsConnect::new(anvil.ws_endpoint_url());
     let p = ProviderBuilder::new()
         .network::<AnyNetwork>()
-        .on_ws(ws)
+        .connect_ws(ws)
         .await
         .unwrap();
     let provider = DynProvider::new(p);
@@ -38,10 +38,7 @@ async fn test_block_collector_sends_blocks() {
     let block_stream = block_collector.get_event_stream().await.unwrap();
     let block_a = block_stream.into_future().await.0.unwrap();
     let block_b = provider
-        .get_block(
-            BlockId::Number(BlockNumberOrTag::Latest),
-            BlockTransactionsKind::Hashes,
-        )
+        .get_block(BlockId::Number(BlockNumberOrTag::Latest))
         .await
         .unwrap()
         .unwrap();
@@ -76,7 +73,7 @@ async fn test_mempool_collector_sends_txs() {
         .await
         .unwrap();
     let tx = mempool_stream.into_future().await.0.unwrap();
-    assert_eq!(tx.value(), value.into());
+    assert_eq!(tx.value(), value);
 }
 
 /// Test that the mempool executor correctly sends txs
