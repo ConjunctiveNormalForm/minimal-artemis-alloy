@@ -1,9 +1,8 @@
 use async_trait::async_trait;
 
 use alloy::{
-    network::{AnyNetwork, AnyTxEnvelope},
+    network::{AnyNetwork, AnyRpcTransaction},
     providers::{DynProvider, Provider},
-    rpc::types::{serde_helpers::WithOtherFields, Transaction},
 };
 use std::sync::Arc;
 use tracing::error;
@@ -27,10 +26,8 @@ impl MempoolCollector {
 /// Implementation of the [Collector](Collector) trait for the [MempoolCollector](MempoolCollector).
 /// This implementation uses the [PubsubClient](PubsubClient) to subscribe to new transactions.
 #[async_trait]
-impl Collector<WithOtherFields<Transaction<AnyTxEnvelope>>> for MempoolCollector {
-    async fn get_event_stream(
-        &self,
-    ) -> Result<CollectorStream<'_, WithOtherFields<Transaction<AnyTxEnvelope>>>> {
+impl Collector<AnyRpcTransaction> for MempoolCollector {
+    async fn get_event_stream(&self) -> Result<CollectorStream<'_, AnyRpcTransaction>> {
         let sub = match self.provider.subscribe_pending_transactions().await {
             Ok(sub) => sub,
             Err(e) => {

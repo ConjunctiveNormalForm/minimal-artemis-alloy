@@ -46,7 +46,7 @@ impl Executor<SubmitTxToMempool> for MempoolExecutor {
     async fn execute(&self, mut action: SubmitTxToMempool) -> Result<()> {
         let gas_usage = self
             .client
-            .estimate_gas(&action.tx)
+            .estimate_gas(action.tx.clone())
             .await
             .context("Error estimating gas usage: {}")?;
 
